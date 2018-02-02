@@ -7,7 +7,6 @@ import com.tarasantoshchuk.rx_workflow.Event
 import com.tarasantoshchuk.rx_workflow.ViewFactory
 import com.tarasantoshchuk.rx_workflow.Workflow
 import com.tarasantoshchuk.rx_workflow.util.FiniteStateMachine
-import io.reactivex.Observable
 import io.reactivex.subjects.BehaviorSubject
 
 class MainActivity : com.tarasantoshchuk.rx_workflow.WorkflowActivity<Unit, Nothing>() {
@@ -57,7 +56,7 @@ class AuthWorkflow : BaseWorkflow<Unit, AuthStates, Nothing>(AuthStateMachine())
     }
 }
 
-class AuthStateMachine: FiniteStateMachine<AuthStates>(AuthStates.LOGIN) {
+class AuthStateMachine: FiniteStateMachine<AuthStates>() {
     init {
         onEvent(SUBMIT_CREDENTIALS, AUTHORIZATION)
         onEvent(RESET_PASSWORD, FORGOT_PASSWORD)
