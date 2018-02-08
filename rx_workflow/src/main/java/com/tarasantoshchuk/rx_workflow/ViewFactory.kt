@@ -27,8 +27,8 @@ open class ViewFactory : CoordinatorProvider {
     }
 
     protected fun bindLayout(key: String, @LayoutRes layoutId: Int, coordinatorConverter: (WorkflowScreen<*, *>) -> ScreenCoordinator<*, *, *>) {
-        mLayoutMaps.put(key, layoutId)
-        mConverterMap.put(key, coordinatorConverter)
+        mLayoutMaps[key] = layoutId
+        mConverterMap[key] = coordinatorConverter
     }
 
     override fun provideCoordinator(view: View): Coordinator? {

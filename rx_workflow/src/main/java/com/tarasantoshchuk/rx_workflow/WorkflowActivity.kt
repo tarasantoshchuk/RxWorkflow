@@ -54,12 +54,10 @@ abstract class WorkflowActivity<in I, R> : AppCompatActivity() {
 
         Coordinators.installBinder(rootView, viewFactory)
 
-        workflow
-                .screen()
-                .subscribe(
-                        { ws -> viewFactory.createView(ws, rootView) }
-                )
-
+        workflow.screen()
+                .subscribe { ws ->
+                    viewFactory.createView(ws, rootView)
+                }
 
         workflow.start(intent.extras.getSerializable(KEY_INPUT) as I)
     }

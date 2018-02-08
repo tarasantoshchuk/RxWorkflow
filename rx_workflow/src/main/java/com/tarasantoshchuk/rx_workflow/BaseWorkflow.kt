@@ -8,14 +8,16 @@ import io.reactivex.subjects.BehaviorSubject
 import io.reactivex.subjects.MaybeSubject
 import java.lang.RuntimeException
 
-open class BaseWorkflow<in I, S: Any, R>(protected var machine: FiniteStateMachine<S>) : Workflow<I, R> {
+abstract class BaseWorkflow<in I, S: Any, R>(protected var machine: FiniteStateMachine<S>) : Workflow<I, R> {
     protected var result: MaybeSubject<R> = MaybeSubject.create()
 
     protected var screen: BehaviorSubject<WorkflowScreen<*, *>> = BehaviorSubject.create()
 
     override final fun start(input: I) {
-        machine.start()
+        machine.startWith(state())
     }
+
+    protected abstract fun state(): S
 
     override final fun back() {
         machine.accept(CommonEvents.BACK)
