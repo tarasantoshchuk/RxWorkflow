@@ -145,14 +145,14 @@ open class SimpleEditableTransition<S : Any, E : Any>(private val inner: Transit
     override fun editApply(applyAction: (S, E, S) -> S): EditableTransition<S, E> =
             object : SimpleEditableTransition<S, E>(this) {
                 override fun apply(s: S, e: E): S {
-                    return applyAction(s, e, apply(s, e))
+                    return applyAction(s, e, inner.apply(s, e))
                 }
             }
 
     override fun editIsApplicable(applicableAction: (S, E, Boolean) -> Boolean): EditableTransition<S, E> =
             object : SimpleEditableTransition<S, E>(this) {
                 override fun isApplicable(s: S, e: E): Boolean {
-                    return applicableAction(s, e, isApplicable(s, e))
+                    return applicableAction(s, e, inner.isApplicable(s, e))
                 }
             }
 }
