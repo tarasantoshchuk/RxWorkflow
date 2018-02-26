@@ -6,7 +6,7 @@ import java.util.*
 import kotlin.NoSuchElementException
 import kotlin.reflect.KClass
 
-open class FiniteStateMachine<S: Any, E: Any> {
+open class FiniteStateMachine<S : Any, E : Any> {
     private lateinit var state: S
     private val listener: CompositeListener<S> = CompositeListener()
     private val transitions: CompositeTransition<S, E> = CompositeTransition()
@@ -15,20 +15,17 @@ open class FiniteStateMachine<S: Any, E: Any> {
 
     constructor()
 
-    @Suppress("unused")
     constructor(initializer: FiniteStateMachine<S, E>.() -> Unit) {
         this.initializer()
     }
 
-    @Suppress("unused")
     fun startWith(initialState: S) {
         state = initialState
         started = true
     }
 
-    @Suppress("MemberVisibilityCanPrivate")
-    fun onAnyState(body:(S) -> Unit) {
-        listener.add(object: Listener<S> {
+    fun onAnyState(body: (S) -> Unit) {
+        listener.add(object : Listener<S> {
             override fun onTransition(newState: S) {
                 body(newState)
             }
@@ -39,8 +36,7 @@ open class FiniteStateMachine<S: Any, E: Any> {
         }
     }
 
-    @Suppress("unused")
-    fun onState(state: S, body:() -> Unit) {
+    fun onState(state: S, body: () -> Unit) {
         onAnyState {
             if (it == state) {
                 body()
@@ -48,7 +44,8 @@ open class FiniteStateMachine<S: Any, E: Any> {
         }
     }
 
-    @Suppress("unused")
+    fun state() = state
+
     protected fun transition(state: S, event: E, newState: S): MutableTransition<S, E> {
         return addAsMutableTransition(object : Transition<S, E> {
             override fun isApplicable(s: S, e: E): Boolean {
@@ -62,8 +59,7 @@ open class FiniteStateMachine<S: Any, E: Any> {
         })
     }
 
-    @Suppress("unused")
-    protected fun <TE: E> transition(state: S, eventClass: KClass<TE>, body: (TE) -> S): MutableTransition<S, E> {
+    protected fun <TE : E> transition(state: S, eventClass: KClass<TE>, body: (TE) -> S): MutableTransition<S, E> {
         val mutableTransition = MutableTransition(object : Transition<S, E> {
             override fun isApplicable(s: S, e: E): Boolean {
                 return eventClass == e::class && s == state
@@ -105,11 +101,11 @@ open class FiniteStateMachine<S: Any, E: Any> {
 
 }
 
-interface Listener<in T: Any> {
+interface Listener<in T : Any> {
     fun onTransition(newState: T)
 }
 
-class CompositeListener<T: Any> : Listener<T> {
+class CompositeListener<T : Any> : Listener<T> {
     private val listeners: MutableList<Listener<T>> = ArrayList()
 
     override fun onTransition(newState: T) {
@@ -123,9 +119,9 @@ class CompositeListener<T: Any> : Listener<T> {
     }
 }
 
-interface Transition<S: Any, in E: Any> {
+interface Transition<S : Any, in E : Any> {
     fun isApplicable(s: S, e: E): Boolean
-    fun apply(s: S, e:E): S
+    fun apply(s: S, e: E): S
 
     fun applyIfApplicable(s: S, e: E): Pair<Boolean, S> {
         if (isApplicable(s, e)) {
@@ -136,32 +132,32 @@ interface Transition<S: Any, in E: Any> {
     }
 }
 
-interface EditableTransition<S: Any, E: Any>: Transition<S, E> {
+interface EditableTransition<S : Any, E : Any> : Transition<S, E> {
     fun editIsApplicable(applicableAction: (S, E, Boolean) -> Boolean): EditableTransition<S, E>
     fun editApply(applyAction: (S, E, S) -> S): EditableTransition<S, E>
 }
 
-open class SimpleEditableTransition<S: Any, E: Any>(private val inner: Transition<S, E>) : EditableTransition<S, E> {
+open class SimpleEditableTransition<S : Any, E : Any>(private val inner: Transition<S, E>) : EditableTransition<S, E> {
     override fun isApplicable(s: S, e: E) = inner.isApplicable(s, e)
 
     override fun apply(s: S, e: E) = inner.apply(s, e)
 
     override fun editApply(applyAction: (S, E, S) -> S): EditableTransition<S, E> =
-        object: SimpleEditableTransition<S, E>(this) {
-            override fun apply(s: S, e: E): S {
-                return applyAction(s, e, apply(s, e))
+            object : SimpleEditableTransition<S, E>(this) {
+                override fun apply(s: S, e: E): S {
+                    return applyAction(s, e, inner.apply(s, e))
+                }
             }
-        }
 
     override fun editIsApplicable(applicableAction: (S, E, Boolean) -> Boolean): EditableTransition<S, E> =
-            object: SimpleEditableTransition<S, E>(this) {
+            object : SimpleEditableTransition<S, E>(this) {
                 override fun isApplicable(s: S, e: E): Boolean {
-                    return applicableAction(s, e, isApplicable(s, e))
+                    return applicableAction(s, e, inner.isApplicable(s, e))
                 }
             }
 }
 
-class MutableTransition<S: Any, E: Any>(transition: Transition<S, E>) : EditableTransition<S, E> {
+class MutableTransition<S : Any, E : Any>(transition: Transition<S, E>) : EditableTransition<S, E> {
     private var inner: EditableTransition<S, E> = SimpleEditableTransition(transition)
 
     override fun editIsApplicable(applicableAction: (S, E, Boolean) -> Boolean): EditableTransition<S, E> {
@@ -178,8 +174,7 @@ class MutableTransition<S: Any, E: Any>(transition: Transition<S, E>) : Editable
 
     override fun apply(s: S, e: E) = inner.apply(s, e)
 
-    @Suppress("unused")
-    inline fun <reified TE: E> onlyIf(crossinline predicate:(S, TE) -> Boolean): MutableTransition<S, E> {
+    inline fun <reified TE : E> onlyIf(crossinline predicate: (S, TE) -> Boolean): MutableTransition<S, E> {
         editIsApplicable { s, e, isApplicable ->
             isApplicable && e is TE && predicate(s, e)
         }
@@ -187,8 +182,7 @@ class MutableTransition<S: Any, E: Any>(transition: Transition<S, E>) : Editable
         return this
     }
 
-    @Suppress("unused")
-    fun doAction(action:(S, E) -> Unit): MutableTransition<S, E> {
+    fun doAction(action: (S, E) -> Unit): MutableTransition<S, E> {
         editApply { s, e, newState ->
             action(s, e)
             newState
@@ -197,8 +191,7 @@ class MutableTransition<S: Any, E: Any>(transition: Transition<S, E>) : Editable
         return this
     }
 
-    @Suppress("unused")
-    fun mapState(mapper:(S) -> S): MutableTransition<S, E> {
+    fun mapState(mapper: (S) -> S): MutableTransition<S, E> {
         editApply { _, _, newState ->
             mapper(newState)
         }
@@ -207,7 +200,7 @@ class MutableTransition<S: Any, E: Any>(transition: Transition<S, E>) : Editable
     }
 }
 
-class CompositeTransition<S: Any, E: Any> : Transition<S, E> {
+class CompositeTransition<S : Any, E : Any> : Transition<S, E> {
     private val transitions: MutableList<Transition<S, E>> = ArrayList()
 
     override fun isApplicable(s: S, e: E): Boolean {
