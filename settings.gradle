@@ -1,2 +1,2 @@
-include ':app',
-        ':rx_workflow'
+include ':app', ':rx-workflow-butterknife',
+        ':rx-workflow'
