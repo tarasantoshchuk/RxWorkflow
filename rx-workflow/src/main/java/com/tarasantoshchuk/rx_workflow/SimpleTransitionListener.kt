@@ -1,6 +1,6 @@
 package com.tarasantoshchuk.rx_workflow
 
-import android.support.transition.Transition
+import android.transition.Transition
 
 
 open class SimpleTransitionListener: Transition.TransitionListener {

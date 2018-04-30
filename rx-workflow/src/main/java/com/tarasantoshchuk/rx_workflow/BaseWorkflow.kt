@@ -25,12 +25,7 @@ abstract class BaseWorkflow<in I, S: Any, R>(protected var machine: FiniteStateM
     protected abstract fun state(): S
 
     final override fun back(): Boolean {
-        if (machine.canGoBack()) {
-            machine.accept(CommonEvents.BACK)
-            return true
-        }
-
-        return false
+        return machine.accept(CommonEvents.BACK)
     }
 
     final override fun abort() {

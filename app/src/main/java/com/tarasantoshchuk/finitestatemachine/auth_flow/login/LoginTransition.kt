@@ -1,8 +1,8 @@
 package com.tarasantoshchuk.finitestatemachine.auth_flow.login
 
-import android.support.transition.ChangeBounds
-import android.support.transition.Fade
-import android.support.transition.TransitionSet
+import android.transition.ChangeBounds
+import android.transition.Fade
+import android.transition.TransitionSet
 import android.view.View
 import butterknife.BindView
 import com.tarasantoshchuk.finitestatemachine.R
@@ -14,10 +14,15 @@ class LoginTransition : ButterKnifeTransitionBuilder() {
 
     override fun doContributeExitTransition(transition: TransitionSet, view: View) {
         transition.addTransition(Fade().addTarget(content).setDuration(1000))
-        transition.addTransition(ChangeBounds().addTarget(R.id.reset_password).setDuration(1000))
+        transition.addTransition(TransitionSet().
+                addTransition(ChangeBounds()).
+                addTransition(Fade())
+                        .addTarget(R.id.reset_password)
+                        .setDuration(1000))
     }
 
     override fun doContributeEnterTransition(transition: TransitionSet, view: View) {
         transition.addTransition(Fade().addTarget(content).setDuration(1000))
+        transition.addTransition(Fade().addTarget(R.id.reset_password).setDuration(1000))
     }
 }

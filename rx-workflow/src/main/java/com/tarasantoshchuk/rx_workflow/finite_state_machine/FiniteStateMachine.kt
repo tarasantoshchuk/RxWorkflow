@@ -1,5 +1,3 @@
-@file:Suppress("PackageName")
-
 package com.tarasantoshchuk.rx_workflow.finite_state_machine
 
 import com.tarasantoshchuk.rx_workflow.CommonEvents
@@ -20,15 +18,6 @@ open class FiniteStateMachine<S : Any> {
 
     constructor(initializer: FiniteStateMachine<S>.() -> Unit) {
         this.initializer()
-        transitions.add(object : Transition<S> {
-            override fun isApplicable(s: S, e: Event): Boolean {
-                return e == CommonEvents.BACK
-            }
-
-            override fun apply(s: S, e: Event): S {
-                return backStack.pop()
-            }
-        })
 
         onNewState { oldState: S, _: S ->
             backStack.push(oldState)
@@ -52,7 +41,7 @@ open class FiniteStateMachine<S : Any> {
     private fun onNewState(body: (S, S) -> Unit) {
         listener.add(object : Listener<S> {
             override fun onTransition(oldState: S, event: Event, newState: S) {
-                if (event != CommonEvents.BACK && event != CommonEvents.START) {
+                if (event is CommonEvents) {
                     body(oldState, newState)
                 }
             }
@@ -82,6 +71,18 @@ open class FiniteStateMachine<S : Any> {
         })
     }
 
+    protected fun transitionBack(state: S, event: Event): MutableTransition<S> {
+        return addAsMutableTransition(object : Transition<S> {
+            override fun isApplicable(s: S, e: Event): Boolean {
+                return e == event && s == state
+            }
+
+            override fun apply(s: S, e: Event): S {
+                return backStack.pop()
+            }
+        })
+    }
+
     protected fun <TE : Event> transition(state: S, eventClass: KClass<TE>, body: (TE) -> S): MutableTransition<S> {
         val mutableTransition = MutableTransition(object : Transition<S> {
             override fun isApplicable(s: S, e: Event): Boolean {
@@ -108,7 +109,7 @@ open class FiniteStateMachine<S : Any> {
         return mutableTransition
     }
 
-    fun accept(event: Event) {
+    fun accept(event: Event): Boolean {
         if (!started) {
             throw IllegalStateException("dispatching event to machine that is not yet started")
         }
@@ -119,11 +120,11 @@ open class FiniteStateMachine<S : Any> {
             listener.onTransition(state, event, newState)
 
             state = newState
-        }
-    }
 
-    fun canGoBack(): Boolean {
-        return !backStack.empty()
+            return true
+        }
+
+        return false
     }
 
     operator fun invoke(body: FiniteStateMachine<S>.() -> Unit) {

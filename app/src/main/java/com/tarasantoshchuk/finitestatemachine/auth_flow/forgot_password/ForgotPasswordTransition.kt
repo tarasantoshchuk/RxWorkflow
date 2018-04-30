@@ -1,8 +1,8 @@
 package com.tarasantoshchuk.finitestatemachine.auth_flow.forgot_password
 
-import android.support.transition.ChangeBounds
-import android.support.transition.Fade
-import android.support.transition.TransitionSet
+import android.transition.ChangeBounds
+import android.transition.Fade
+import android.transition.TransitionSet
 import android.view.View
 import butterknife.BindView
 import com.tarasantoshchuk.finitestatemachine.R

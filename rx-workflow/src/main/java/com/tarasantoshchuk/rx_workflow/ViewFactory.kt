@@ -2,7 +2,8 @@ package com.tarasantoshchuk.rx_workflow
 
 
 import android.support.annotation.LayoutRes
-import android.support.transition.*
+import android.transition.TransitionManager
+import android.transition.TransitionSet
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -15,7 +16,7 @@ open class ViewFactory : CoordinatorProvider {
     private val mConverters = HashMap<String, (WorkflowScreen<*, *>) -> ScreenCoordinator<*, *, *>>()
     private val mTransitionBuilders = HashMap<String, TransitionBuilder>()
 
-    fun createView(screen: WorkflowScreen<*, *>, root: ViewGroup) {
+    fun switchToScreen(screen: WorkflowScreen<*, *>, root: ViewGroup) {
         val key = screen.key
 
         val previousView = root.getChildAt(0)

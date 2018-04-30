@@ -1,16 +1,17 @@
 package com.tarasantoshchuk.finitestatemachine.auth_flow.login
 
+import android.view.View
 import android.widget.EditText
 import butterknife.BindView
 import butterknife.OnClick
 import butterknife.Unbinder
 import com.tarasantoshchuk.finitestatemachine.R
+import com.tarasantoshchuk.finitestatemachine.commons.BaseScreenCoordinator
 import com.tarasantoshchuk.finitestatemachine.utils.textString
-import com.tarasantoshchuk.rx_workflow.butterknife.ButterknifeScreenCoordinator
 
 
 class LoginScreenCoordinator(workflowScreen: LoginScreen) :
-        ButterknifeScreenCoordinator<LoginScreen, LoginScreen.LoginEvents, LoginScreen.LoginData>(workflowScreen) {
+        BaseScreenCoordinator<LoginScreen, LoginScreen.LoginEvents, LoginScreen.LoginData>(workflowScreen) {
     lateinit var unbinder: Unbinder
 
     @BindView(R.id.et_email)
@@ -28,7 +29,9 @@ class LoginScreenCoordinator(workflowScreen: LoginScreen) :
         eventsHandler().onResetPassword(emailText.textString())
     }
 
-    override fun attach() {
+    override fun attach(view: View) {
+        super.attach(view)
+
         screenData()
                 .map {
                     it.message

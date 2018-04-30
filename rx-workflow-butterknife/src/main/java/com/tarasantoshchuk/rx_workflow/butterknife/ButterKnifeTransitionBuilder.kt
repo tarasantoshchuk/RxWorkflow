@@ -1,9 +1,8 @@
 package com.tarasantoshchuk.rx_workflow.butterknife
 
-import android.support.transition.TransitionSet
+import android.transition.TransitionSet
 import android.view.View
 import android.view.ViewGroup
-import butterknife.ButterKnife
 import com.tarasantoshchuk.rx_workflow.TransitionBuilder
 
 
@@ -49,7 +48,7 @@ open class ButterKnifeTransitionBuilder: TransitionBuilder() {
     }
 
     private fun withButterknife(view: View, block: () -> Unit) {
-        val unbinder = ButterKnife.bind(this, view)
+        val unbinder = butterknife.ButterKnife.bind(this, view)
         block()
         unbinder.unbind()
     }

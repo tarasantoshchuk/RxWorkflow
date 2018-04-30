@@ -4,11 +4,12 @@ import android.support.annotation.LayoutRes
 import com.tarasantoshchuk.finitestatemachine.R
 import com.tarasantoshchuk.finitestatemachine.auth_flow.login.LoginScreen.LoginData
 import com.tarasantoshchuk.finitestatemachine.auth_flow.login.LoginScreen.LoginEvents
-import com.tarasantoshchuk.rx_workflow.WorkflowScreen
+import com.tarasantoshchuk.finitestatemachine.commons.BaseWorkflowScreen
+import com.tarasantoshchuk.finitestatemachine.commons.CommonScreenData
 import io.reactivex.Observable
 
-class LoginScreen(screenData: Observable<LoginData>, eventHandler: LoginEvents) :
-        WorkflowScreen<LoginData, LoginEvents>(KEY, screenData, eventHandler) {
+class LoginScreen(screenData: Observable<LoginData>, commonData: Observable<CommonScreenData>, eventHandler: LoginEvents) :
+        BaseWorkflowScreen<LoginData, LoginEvents>(KEY, screenData, commonData, eventHandler) {
     companion object {
         val KEY: String = LoginScreen::class.java.simpleName
 

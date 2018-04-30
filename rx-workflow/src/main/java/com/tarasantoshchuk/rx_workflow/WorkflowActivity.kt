@@ -3,13 +3,12 @@ package com.tarasantoshchuk.rx_workflow
 import android.app.Activity
 import android.content.Intent
 import android.os.Bundle
-import android.support.v7.app.AppCompatActivity
 import android.view.ViewGroup
 import com.squareup.coordinators.Coordinators
 import io.reactivex.disposables.Disposable
 
 
-abstract class WorkflowActivity<in I, R: Bundleable> : AppCompatActivity() {
+abstract class WorkflowActivity<in I, R: Bundleable> : Activity() {
 
     companion object {
         const val KEY_INPUT: String = "KEY_INPUT"
@@ -50,7 +49,7 @@ abstract class WorkflowActivity<in I, R: Bundleable> : AppCompatActivity() {
         workflow.screen()
                 .subscribe { ws ->
                     viewFactory.
-                            createView(ws, rootView)
+                            switchToScreen(ws, rootView)
                 }
 
         workflow.start(intent.getSerializableExtra(KEY_INPUT) as I)

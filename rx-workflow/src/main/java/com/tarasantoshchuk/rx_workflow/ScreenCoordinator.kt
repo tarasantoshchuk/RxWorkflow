@@ -7,7 +7,7 @@ import com.squareup.coordinators.Coordinator
 
 import io.reactivex.Observable
 
-abstract class ScreenCoordinator<WS : WorkflowScreen<D, E>, out E, D>(private val workflowScreen: WS) : Coordinator() {
+abstract class ScreenCoordinator<WS : WorkflowScreen<D, E>, out E, D>(protected val workflowScreen: WS) : Coordinator() {
 
     abstract override fun attach(view: View)
 

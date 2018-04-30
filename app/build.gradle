@@ -6,7 +6,7 @@ android {
     compileSdkVersion 27
     defaultConfig {
         applicationId "com.tarasantoshchuk.finitestatemachine"
-        minSdkVersion 15
+        minSdkVersion 19
         targetSdkVersion 27
     }
     buildTypes {
@@ -16,10 +16,20 @@ android {
 }
 
 dependencies {
-    implementation "com.android.support.constraint:constraint-layout:1.1.0-beta6"
+    implementation "com.android.support.constraint:constraint-layout:1.1.0"
     implementation 'com.jakewharton:butterknife:8.8.1'
     kapt 'com.jakewharton:butterknife-compiler:8.8.1'
 
-    implementation project(':rx-workflow')
+    implementation "com.android.support:appcompat-v7:27.1.1"
+
+    implementation 'io.reactivex.rxjava2:rxandroid:2.0.2'
+
     implementation project(':rx-workflow-butterknife')
+
+    implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlin_version"
+
+    implementation 'androidx.core:core-ktx:0.3'
+}
+repositories {
+    mavenCentral()
 }

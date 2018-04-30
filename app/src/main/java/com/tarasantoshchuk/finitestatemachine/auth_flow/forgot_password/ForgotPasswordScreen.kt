@@ -4,11 +4,12 @@ import android.support.annotation.LayoutRes
 import com.tarasantoshchuk.finitestatemachine.R
 import com.tarasantoshchuk.finitestatemachine.auth_flow.forgot_password.ForgotPasswordScreen.Data
 import com.tarasantoshchuk.finitestatemachine.auth_flow.forgot_password.ForgotPasswordScreen.Events
-import com.tarasantoshchuk.rx_workflow.WorkflowScreen
+import com.tarasantoshchuk.finitestatemachine.commons.BaseWorkflowScreen
+import com.tarasantoshchuk.finitestatemachine.commons.CommonScreenData
 import io.reactivex.Observable
 
-class ForgotPasswordScreen(screenData: Observable<Data>, eventHandler: Events) :
-        WorkflowScreen<Data, Events>(KEY, screenData, eventHandler) {
+class ForgotPasswordScreen(screenData: Observable<Data>, commonData: Observable<CommonScreenData>, eventHandler: Events) :
+        BaseWorkflowScreen<Data, Events>(KEY, screenData, commonData, eventHandler) {
     companion object {
         val KEY: String = ForgotPasswordScreen::class.java.simpleName
 

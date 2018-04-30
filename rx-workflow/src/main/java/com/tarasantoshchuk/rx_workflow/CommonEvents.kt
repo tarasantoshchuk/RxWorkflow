@@ -1,6 +1,9 @@
 package com.tarasantoshchuk.rx_workflow
 
 enum class CommonEvents : Event {
+    START,
     BACK,
-    START
+    FAIL;
+
+    override fun isNewState() = false
 }

@@ -5,10 +5,8 @@ apply plugin: 'kotlin-kapt'
 android {
     compileSdkVersion 27
 
-
-
     defaultConfig {
-        minSdkVersion 14
+        minSdkVersion 19
         targetSdkVersion 27
 
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
@@ -27,6 +25,11 @@ android {
 dependencies {
     api project(':rx-workflow')
 
-    implementation 'com.jakewharton:butterknife:8.8.1'
+    api 'com.jakewharton:butterknife:8.8.1'
     kapt 'com.jakewharton:butterknife-compiler:8.8.1'
+
+    implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlin_version"
+}
+repositories {
+    mavenCentral()
 }

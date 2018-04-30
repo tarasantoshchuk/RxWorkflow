@@ -1,4 +1,6 @@
 package com.tarasantoshchuk.rx_workflow
 
 
-interface Event
+interface Event {
+    fun isNewState() = true
+}

@@ -1,7 +1,7 @@
 package com.tarasantoshchuk.rx_workflow
 
-import android.support.transition.AutoTransition
-import android.support.transition.TransitionSet
+import android.transition.AutoTransition
+import android.transition.TransitionSet
 import android.view.View
 import android.view.ViewGroup
 
