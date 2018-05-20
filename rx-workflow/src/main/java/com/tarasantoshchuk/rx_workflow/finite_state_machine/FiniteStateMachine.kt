@@ -25,6 +25,10 @@ open class FiniteStateMachine<S : Any> {
     }
 
     fun startWith(initialState: S) {
+        if (started) {
+            throw IllegalStateException("already started")
+        }
+
         state = initialState
         started = true
         listener.onTransition(state, CommonEvents.START, state)

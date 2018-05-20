@@ -5,7 +5,7 @@ import android.content.Intent
 import android.os.Bundle
 import android.view.ViewGroup
 import com.squareup.coordinators.Coordinators
-import io.reactivex.disposables.Disposable
+import io.reactivex.disposables.CompositeDisposable
 
 
 abstract class WorkflowActivity<in I, R: Bundleable> : Activity() {
@@ -17,7 +17,7 @@ abstract class WorkflowActivity<in I, R: Bundleable> : Activity() {
 
     private lateinit var workflow: Workflow<I, R>
 
-    private lateinit var resultDisposable: Disposable
+    private val resultDisposable = CompositeDisposable()
 
     abstract fun createWorkflow(): Workflow<I, R>
 
@@ -29,11 +29,12 @@ abstract class WorkflowActivity<in I, R: Bundleable> : Activity() {
         super.onCreate(savedInstanceState)
         setContentView()
 
-        workflow = createWorkflow()
+        workflow = lastNonConfigurationInstance as Workflow<I, R>? ?: createWorkflow()
+
         workflow
                 .result()
                 .doOnSubscribe{
-                    resultDisposable = it
+                    resultDisposable.add(it)
                 }
                 .doOnComplete(this::finish)
                 .subscribe(this::finish) {
@@ -47,12 +48,17 @@ abstract class WorkflowActivity<in I, R: Bundleable> : Activity() {
         Coordinators.installBinder(rootView, viewFactory)
 
         workflow.screen()
+                .doOnSubscribe {
+                    resultDisposable.add(it)
+                }
                 .subscribe { ws ->
                     viewFactory.
                             switchToScreen(ws, rootView)
                 }
 
-        workflow.start(intent.getSerializableExtra(KEY_INPUT) as I)
+        if (savedInstanceState == null) {
+            workflow.start(intent.getSerializableExtra(KEY_INPUT) as I)
+        }
     }
 
     abstract fun getRootView(): ViewGroup
@@ -68,9 +74,17 @@ abstract class WorkflowActivity<in I, R: Bundleable> : Activity() {
         }
     }
 
+    override fun onRetainNonConfigurationInstance(): Any {
+        return workflow
+    }
+
     override fun onDestroy() {
         super.onDestroy()
 
-        workflow.abort()
+        if (isFinishing) {
+            workflow.abort()
+        }
+
+        resultDisposable.clear()
     }
 }
