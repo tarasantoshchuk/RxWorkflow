@@ -1,7 +1,9 @@
-package com.tarasantoshchuk.rx_workflow.finite_state_machine
+package com.tarasantoshchuk.rx_workflow.fsm
 
-import com.tarasantoshchuk.rx_workflow.CommonEvents
-import com.tarasantoshchuk.rx_workflow.Event
+import android.util.Log
+import com.tarasantoshchuk.rx_workflow.impl.CommonEvents
+import com.tarasantoshchuk.rx_workflow.core.Event
+import com.tarasantoshchuk.rx_workflow.core.Workflow
 import java.util.*
 import kotlin.reflect.KClass
 
@@ -13,6 +15,9 @@ open class FiniteStateMachine<S : Any> {
     private var backStack = Stack<S>()
 
     private var started = false
+    private var halted = false
+
+    protected lateinit var workflow: Workflow
 
     constructor(): this({})
 
@@ -45,7 +50,7 @@ open class FiniteStateMachine<S : Any> {
     private fun onNewState(body: (S, S) -> Unit) {
         listener.add(object : Listener<S> {
             override fun onTransition(oldState: S, event: Event, newState: S) {
-                if (event is CommonEvents) {
+                if (event.isNewState()) {
                     body(oldState, newState)
                 }
             }
@@ -62,6 +67,18 @@ open class FiniteStateMachine<S : Any> {
 
     fun state() = state
 
+    protected inline fun <reified TE> universalTransition(crossinline newState: (TE) -> S): MutableTransition<S> {
+        return addAsMutableTransition(object: Transition<S> {
+            override fun isApplicable(s: S, e: Event): Boolean {
+                return e is TE
+            }
+
+            override fun apply(s: S, e: Event): S {
+                return newState(e as TE)
+            }
+        })
+    }
+
     protected fun transition(state: S, event: Event, newState: S): MutableTransition<S> {
         return addAsMutableTransition(object : Transition<S> {
             override fun isApplicable(s: S, e: Event): Boolean {
@@ -73,6 +90,23 @@ open class FiniteStateMachine<S : Any> {
             }
 
         })
+    }
+
+    protected fun terminalTransition(statePredicate: (S) -> Boolean, event: Event): MutableTransition<S> {
+        return addAsMutableTransition(object : Transition<S> {
+            override fun isApplicable(s: S, e: Event): Boolean {
+                return e == event && statePredicate(s)
+            }
+
+            override fun apply(s: S, e: Event): S {
+                halt()
+                return s
+            }
+        })
+    }
+
+    private fun halt() {
+        halted = true
     }
 
     protected fun transitionBack(state: S, event: Event): MutableTransition<S> {
@@ -105,7 +139,7 @@ open class FiniteStateMachine<S : Any> {
         return mutableTransition
     }
 
-    private fun addAsMutableTransition(transition: Transition<S>): MutableTransition<S> {
+    protected fun addAsMutableTransition(transition: Transition<S>): MutableTransition<S> {
         val mutableTransition = MutableTransition(transition)
 
         transitions.add(mutableTransition)
@@ -114,16 +148,24 @@ open class FiniteStateMachine<S : Any> {
     }
 
     fun accept(event: Event): Boolean {
-        if (!started) {
+        if (!started || halted) {
             throw IllegalStateException("dispatching event to machine that is not yet started")
         }
+
+        Log.v("AEROL", "onPreAccept: $this: started $started, halted $halted, event $event, state $state")
+        Log.v("AEROL", "backStack: $this: $backStack")
 
         if (transitions.isApplicable(state, event)) {
             val newState = transitions.apply(state, event)
 
-            listener.onTransition(state, event, newState)
+            if (!halted) {
+                listener.onTransition(state, event, newState)
 
-            state = newState
+                state = newState
+            }
+
+            Log.v("AEROL", "onPostAccept: $this: started $started, halted $halted, event $event, state $state")
+            Log.v("AEROL", "backStack: $this: $backStack")
 
             return true
         }
@@ -133,6 +175,14 @@ open class FiniteStateMachine<S : Any> {
 
     operator fun invoke(body: FiniteStateMachine<S>.() -> Unit) {
         this.body()
+    }
+
+    open fun back(): Boolean {
+        return accept(CommonEvents.BACK)
+    }
+
+    fun attachToWorkflow(baseWorkflow: Workflow) {
+        workflow = baseWorkflow
     }
 }
 

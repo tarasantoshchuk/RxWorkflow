@@ -1,25 +1,19 @@
-package com.tarasantoshchuk.rx_workflow
+package com.tarasantoshchuk.rx_workflow.core
 
 import android.app.Activity
-import android.content.Intent
 import android.os.Bundle
 import android.view.ViewGroup
 import com.squareup.coordinators.Coordinators
+import com.tarasantoshchuk.rx_workflow.ui.ViewFactory
 import io.reactivex.disposables.CompositeDisposable
 
 
-abstract class WorkflowActivity<in I, R: Bundleable> : Activity() {
-
-    companion object {
-        const val KEY_INPUT: String = "KEY_INPUT"
-        const val KEY_RESULT: String = "KEY_RESULT"
-    }
-
-    private lateinit var workflow: Workflow<I, R>
+abstract class WorkflowActivity : Activity() {
+    private lateinit var workflow: Workflow
 
     private val resultDisposable = CompositeDisposable()
 
-    abstract fun createWorkflow(): Workflow<I, R>
+    abstract fun createWorkflow(): Workflow
 
     abstract fun createViewFactory(): ViewFactory
 
@@ -29,17 +23,17 @@ abstract class WorkflowActivity<in I, R: Bundleable> : Activity() {
         super.onCreate(savedInstanceState)
         setContentView()
 
-        workflow = lastNonConfigurationInstance as Workflow<I, R>? ?: createWorkflow()
+        workflow = lastNonConfigurationInstance as Workflow? ?: createWorkflow()
 
         workflow
-                .result()
-                .doOnSubscribe{
+                .finish()
+                .doOnSubscribe {
                     resultDisposable.add(it)
                 }
-                .doOnComplete(this::finish)
-                .subscribe(this::finish) {
-
+                .doOnSuccess {
+                    finish()
                 }
+                .subscribe()
 
 
         val rootView: ViewGroup = getRootView()
@@ -57,16 +51,11 @@ abstract class WorkflowActivity<in I, R: Bundleable> : Activity() {
                 }
 
         if (savedInstanceState == null) {
-            workflow.start(intent.getSerializableExtra(KEY_INPUT) as I)
+            workflow.start()
         }
     }
 
     abstract fun getRootView(): ViewGroup
-
-    private fun finish(result: R) {
-        setResult(Activity.RESULT_OK, result.putInto(KEY_RESULT, Intent()))
-        finish()
-    }
 
     override fun onBackPressed() {
         if (!workflow.back()) {
@@ -82,7 +71,7 @@ abstract class WorkflowActivity<in I, R: Bundleable> : Activity() {
         super.onDestroy()
 
         if (isFinishing) {
-            workflow.abort()
+            workflow.finish()
         }
 
         resultDisposable.clear()

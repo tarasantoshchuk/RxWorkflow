@@ -3,7 +3,7 @@ package com.tarasantoshchuk.rx_workflow.butterknife
 import android.transition.TransitionSet
 import android.view.View
 import android.view.ViewGroup
-import com.tarasantoshchuk.rx_workflow.TransitionBuilder
+import com.tarasantoshchuk.rx_workflow.ui.TransitionBuilder
 
 
 open class ButterKnifeTransitionBuilder: TransitionBuilder() {

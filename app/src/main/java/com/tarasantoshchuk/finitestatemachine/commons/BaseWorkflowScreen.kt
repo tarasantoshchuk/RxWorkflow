@@ -1,6 +1,6 @@
 package com.tarasantoshchuk.finitestatemachine.commons
 
-import com.tarasantoshchuk.rx_workflow.WorkflowScreen
+import com.tarasantoshchuk.rx_workflow.ui.WorkflowScreen
 import io.reactivex.Observable
 
 

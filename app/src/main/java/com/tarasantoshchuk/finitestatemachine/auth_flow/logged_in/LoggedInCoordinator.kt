@@ -19,6 +19,11 @@ class LoggedInCoordinator(screen: LoggedInScreen) : BaseScreenCoordinator<Logged
         eventsHandler().onLogOut()
     }
 
+    @OnClick(R.id.continue_btn)
+    fun onContinue() {
+        eventsHandler().onContinue()
+    }
+
     @SuppressLint("SetTextI18n")
     override fun attach(view: View) {
         super.attach(view)

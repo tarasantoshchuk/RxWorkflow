@@ -1,4 +1,4 @@
-package com.tarasantoshchuk.rx_workflow
+package com.tarasantoshchuk.rx_workflow.ui
 
 
 import android.support.annotation.LayoutRes
@@ -9,6 +9,7 @@ import android.view.View
 import android.view.ViewGroup
 import com.squareup.coordinators.Coordinator
 import com.squareup.coordinators.CoordinatorProvider
+import com.tarasantoshchuk.rx_workflow.R
 import java.util.*
 
 open class ViewFactory : CoordinatorProvider {

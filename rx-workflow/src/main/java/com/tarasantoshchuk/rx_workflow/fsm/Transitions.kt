@@ -1,6 +1,6 @@
-package com.tarasantoshchuk.rx_workflow.finite_state_machine
+package com.tarasantoshchuk.rx_workflow.fsm
 
-import com.tarasantoshchuk.rx_workflow.Event
+import com.tarasantoshchuk.rx_workflow.core.Event
 import java.util.ArrayList
 
 interface Transition<S : Any> {

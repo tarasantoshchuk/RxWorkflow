@@ -1,7 +1,8 @@
 package com.tarasantoshchuk.rx_workflow
 
-import com.tarasantoshchuk.rx_workflow.finite_state_machine.FiniteStateMachine
-import com.tarasantoshchuk.rx_workflow.finite_state_machine.MutableTransition
+import com.tarasantoshchuk.rx_workflow.core.Event
+import com.tarasantoshchuk.rx_workflow.fsm.FiniteStateMachine
+import com.tarasantoshchuk.rx_workflow.fsm.MutableTransition
 import junit.framework.Assert.assertSame
 import org.junit.Assert.*
 import org.junit.Before

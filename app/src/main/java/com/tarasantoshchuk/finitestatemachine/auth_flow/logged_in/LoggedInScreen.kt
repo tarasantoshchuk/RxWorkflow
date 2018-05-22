@@ -16,5 +16,6 @@ class LoggedInScreen(screenData: Observable<UserData>, commonData: Observable<Co
 
     interface Events {
         fun onLogOut()
+        fun onContinue()
     }
 }

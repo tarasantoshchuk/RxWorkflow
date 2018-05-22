@@ -1,4 +1,6 @@
-package com.tarasantoshchuk.rx_workflow
+package com.tarasantoshchuk.rx_workflow.impl
+
+import com.tarasantoshchuk.rx_workflow.core.Event
 
 enum class CommonEvents : Event {
     START,

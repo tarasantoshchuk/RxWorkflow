@@ -7,16 +7,17 @@ import com.tarasantoshchuk.finitestatemachine.auth_flow.forgot_password.ForgotPa
 import com.tarasantoshchuk.finitestatemachine.auth_flow.logged_in.LoggedInScreen
 import com.tarasantoshchuk.finitestatemachine.auth_flow.login.LoginScreen
 import com.tarasantoshchuk.finitestatemachine.commons.CommonScreenData
-import com.tarasantoshchuk.rx_workflow.BaseWorkflow
-import com.tarasantoshchuk.rx_workflow.CommonEvents
-import com.tarasantoshchuk.rx_workflow.Event
-import com.tarasantoshchuk.rx_workflow.finite_state_machine.FiniteStateMachine
+import com.tarasantoshchuk.rx_workflow.impl.BaseWorkflow
+import com.tarasantoshchuk.rx_workflow.impl.CommonEvents
+import com.tarasantoshchuk.rx_workflow.core.Event
+import com.tarasantoshchuk.rx_workflow.core.TerminationKey
+import com.tarasantoshchuk.rx_workflow.fsm.FiniteStateMachine
 import io.reactivex.CompletableObserver
 import io.reactivex.disposables.Disposable
 import io.reactivex.subjects.BehaviorSubject
 import io.reactivex.subjects.PublishSubject
 
-class AuthWorkflow : BaseWorkflow<Unit, AuthStates, Nothing>(AuthStateMachine()),
+class AuthWorkflow : BaseWorkflow<AuthStates>(AuthStateMachine()),
         LoginScreen.LoginEvents,
         ForgotPasswordScreen.Events, LoggedInScreen.Events {
 
@@ -45,7 +46,11 @@ class AuthWorkflow : BaseWorkflow<Unit, AuthStates, Nothing>(AuthStateMachine())
                 })
     }
 
-    override fun state() = LOGIN
+    override fun onContinue() {
+        machine.accept(AuthStateMachine.AuthEvents.CONTINUE)
+    }
+
+    override fun initialState() = LOGIN
 
     override fun onLoginPressed(email: String, password: String) {
         machine.accept(AuthStateMachine.AuthEvents.SUBMIT_CREDENTIALS)
@@ -110,7 +115,8 @@ class AuthWorkflow : BaseWorkflow<Unit, AuthStates, Nothing>(AuthStateMachine())
             EMAIL_SENT,
             AUTHORIZED,
             REQUEST_LOG_OUT,
-            LOGGED_OUT
+            LOGGED_OUT,
+            CONTINUE
         }
         init {
             transition(LOGIN, AuthEvents.RESET_PASSWORD, FORGOT_PASSWORD)
@@ -121,6 +127,11 @@ class AuthWorkflow : BaseWorkflow<Unit, AuthStates, Nothing>(AuthStateMachine())
             transitionBack(LOADING, CommonEvents.FAIL)
             transition(SUCCESS, AuthEvents.REQUEST_LOG_OUT, LOADING)
             transition(LOADING, AuthEvents.LOGGED_OUT, LOGIN)
+            terminalTransition({true}, AuthEvents.CONTINUE).doAction {_, _ ->
+                workflow.doFinish(
+                        TerminationKey.FINISH
+                )
+            }
         }
     }
 }

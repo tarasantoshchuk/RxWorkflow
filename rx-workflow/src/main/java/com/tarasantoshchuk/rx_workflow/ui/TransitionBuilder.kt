@@ -1,4 +1,4 @@
-package com.tarasantoshchuk.rx_workflow
+package com.tarasantoshchuk.rx_workflow.ui
 
 import android.transition.AutoTransition
 import android.transition.TransitionSet

@@ -10,7 +10,7 @@ import com.tarasantoshchuk.finitestatemachine.auth_flow.logged_in.LoggedInScreen
 import com.tarasantoshchuk.finitestatemachine.auth_flow.login.LoginScreen
 import com.tarasantoshchuk.finitestatemachine.auth_flow.login.LoginScreenCoordinator
 import com.tarasantoshchuk.finitestatemachine.auth_flow.login.LoginTransition
-import com.tarasantoshchuk.rx_workflow.ViewFactory
+import com.tarasantoshchuk.rx_workflow.ui.ViewFactory
 
 class AuthViewFactory : ViewFactory() {
     init {
