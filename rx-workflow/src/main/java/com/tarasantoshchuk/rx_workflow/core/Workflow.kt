@@ -1,5 +1,6 @@
 package com.tarasantoshchuk.rx_workflow.core
 
+import com.tarasantoshchuk.rx_workflow.ui.ViewFactory
 import com.tarasantoshchuk.rx_workflow.ui.WorkflowScreen
 import io.reactivex.Observable
 import io.reactivex.Single

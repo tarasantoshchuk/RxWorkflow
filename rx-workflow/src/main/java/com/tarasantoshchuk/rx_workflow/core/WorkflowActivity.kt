@@ -5,17 +5,17 @@ import android.os.Bundle
 import android.view.ViewGroup
 import com.squareup.coordinators.Coordinators
 import com.tarasantoshchuk.rx_workflow.ui.ViewFactory
+import io.reactivex.Completable
+import io.reactivex.Observable
 import io.reactivex.disposables.CompositeDisposable
 
 
 abstract class WorkflowActivity : Activity() {
-    private lateinit var workflow: Workflow
+    private lateinit var workflow: Workflows
 
     private val resultDisposable = CompositeDisposable()
 
-    abstract fun createWorkflow(): Workflow
-
-    abstract fun createViewFactory(): ViewFactory
+    abstract fun createWorkflows(): Workflows
 
     abstract fun setContentView()
 
@@ -23,39 +23,28 @@ abstract class WorkflowActivity : Activity() {
         super.onCreate(savedInstanceState)
         setContentView()
 
-        workflow = lastNonConfigurationInstance as Workflow? ?: createWorkflow()
+        workflow = lastNonConfigurationInstance as Workflows? ?: createWorkflows()
 
         workflow
                 .finish()
                 .doOnSubscribe {
                     resultDisposable.add(it)
                 }
-                .doOnSuccess {
+                .doOnComplete {
                     finish()
                 }
                 .subscribe()
 
-
-        val rootView: ViewGroup = getRootView()
-        val viewFactory = createViewFactory()
-
-        Coordinators.installBinder(rootView, viewFactory)
-
-        workflow.screen()
+        workflow.screen(window.decorView as ViewGroup)
                 .doOnSubscribe {
                     resultDisposable.add(it)
                 }
-                .subscribe { ws ->
-                    viewFactory.
-                            switchToScreen(ws, rootView)
-                }
+                .subscribe()
 
         if (savedInstanceState == null) {
             workflow.start()
         }
     }
-
-    abstract fun getRootView(): ViewGroup
 
     override fun onBackPressed() {
         if (!workflow.back()) {
@@ -71,9 +60,84 @@ abstract class WorkflowActivity : Activity() {
         super.onDestroy()
 
         if (isFinishing) {
-            workflow.finish()
+            workflow.doFinish()
         }
 
         resultDisposable.clear()
     }
 }
+
+class Workflows(block: Workflows.() -> Unit) {
+    private var workflowProviders: ArrayList<WorkflowProvider> = ArrayList()
+
+
+    fun registerWorkflow(workflow: Workflow, factory: ViewFactory, rootView: (ViewGroup) -> ViewGroup) {
+        workflowProviders.add(WorkflowProvider(workflow, factory, rootView))
+    }
+
+    fun finish(): Completable {
+        return Observable.fromIterable(workflowProviders)
+                .flatMap {
+                    it.workflow.finish().toObservable()
+                }
+                .ignoreElements()
+    }
+
+    fun screen(workflowRoot: ViewGroup): Completable {
+        return Observable
+                .fromIterable(workflowProviders)
+                .flatMap { provider ->
+                    val root = provider.rootView(workflowRoot)
+                    val factory = provider.factory
+
+                    provider
+                            .workflow
+                            .screen()
+                            .doOnSubscribe {
+                                Coordinators.installBinder(root, factory)
+                            }
+                            .doOnNext {
+                                factory.switchToScreen(it, root)
+                            }
+                }
+                .ignoreElements()
+    }
+
+    fun doFinish() {
+        Observable.fromIterable(workflowProviders)
+                .subscribe {
+                    it.workflow.doFinish(TerminationKey.FINISH)
+                }
+    }
+
+    fun start() {
+        workflowProviders
+                .map {
+                    it.workflow
+                }
+                .forEach {
+                    it.start()
+                }
+    }
+
+    fun back(): Boolean {
+        workflowProviders
+                .map {
+                    it.workflow
+                }
+                .onEach {
+                    if (it.back()) {
+                        return@back true
+                    }
+                }
+
+        return false
+    }
+
+    init {
+        this.block()
+    }
+
+}
+
+data class WorkflowProvider(val workflow: Workflow, val factory: ViewFactory, val rootView: (ViewGroup) -> ViewGroup)
