@@ -6,7 +6,7 @@ android {
     compileSdkVersion 27
     defaultConfig {
         applicationId "com.tarasantoshchuk.finitestatemachine"
-        minSdkVersion 19
+        minSdkVersion 15
         targetSdkVersion 27
     }
     buildTypes {
