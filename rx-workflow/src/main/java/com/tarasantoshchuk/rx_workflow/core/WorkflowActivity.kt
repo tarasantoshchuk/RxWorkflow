@@ -1,7 +1,7 @@
 package com.tarasantoshchuk.rx_workflow.core
 
-import android.app.Activity
 import android.os.Bundle
+import android.support.v7.app.AppCompatActivity
 import android.view.ViewGroup
 import com.squareup.coordinators.Coordinators
 import com.tarasantoshchuk.rx_workflow.ui.ViewFactory
@@ -10,7 +10,7 @@ import io.reactivex.Observable
 import io.reactivex.disposables.CompositeDisposable
 
 
-abstract class WorkflowActivity : Activity() {
+abstract class WorkflowActivity : AppCompatActivity() {
     private lateinit var workflow: Workflows
 
     private val resultDisposable = CompositeDisposable()
@@ -23,7 +23,7 @@ abstract class WorkflowActivity : Activity() {
         super.onCreate(savedInstanceState)
         setContentView()
 
-        workflow = lastNonConfigurationInstance as Workflows? ?: createWorkflows()
+        workflow = lastCustomNonConfigurationInstance as Workflows? ?: createWorkflows()
 
         workflow
                 .finish()
@@ -52,7 +52,7 @@ abstract class WorkflowActivity : Activity() {
         }
     }
 
-    override fun onRetainNonConfigurationInstance(): Any {
+    override fun onRetainCustomNonConfigurationInstance(): Any {
         return workflow
     }
 
