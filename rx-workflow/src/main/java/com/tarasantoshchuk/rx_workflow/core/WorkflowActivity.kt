@@ -41,7 +41,7 @@ abstract class WorkflowActivity : AppCompatActivity() {
                 }
                 .subscribe()
 
-        if (savedInstanceState == null) {
+        if (lastNonConfigurationInstance == null) {
             workflow.start()
         }
     }
